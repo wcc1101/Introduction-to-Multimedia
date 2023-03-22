@@ -3,6 +3,14 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+def saveImage(image, fileName):
+    outDir = 'out'
+    try:
+        os.mkdir(outDir)
+    except:
+        pass
+    cv2.imwrite(os.path.join(outDir, fileName), image)
+
 def solve(image, flattenImage, depth):
     # end of recursion, quantize the image
     if depth == 0:
@@ -43,13 +51,7 @@ def medianCut(image, n):
     solve(image, flattenImage, n)
 
     # save image
-    outDir = 'out'
-    fileName = 'median_cut' + str(n) + '.jpg'
-    try:
-        os.mkdir(outDir)
-    except:
-        pass
-    cv2.imwrite(os.path.join(outDir, fileName), image)
+    saveImage(image, f'median_cut{str(n)}.jpg')
 
     return image
 
@@ -75,7 +77,7 @@ def addError(pixel, error):
         # clamp to 0-255
         pixel[i] = max(0, min(pixel[i] + error[i], 255))
 
-def errorDiffusionDithering(image, colorMap):
+def errorDiffusionDithering(image, colorMap, n):
     # define height and width for the image
     h, w = image.shape[:2]
 
@@ -107,6 +109,9 @@ def errorDiffusionDithering(image, colorMap):
     # tranform back
     image = np.array(image * 255, dtype=np.uint8)
 
+    # save image
+    saveImage(image, f'error_diffusion_dithering_{str(n)}.jpg')
+
     return image
 
 ### A part ###
@@ -124,8 +129,8 @@ def A(image):
 ### B part ###
 def B(image, colorMap3, colorMap6):
     # error diffusion dithering
-    image3 = errorDiffusionDithering(image.copy(), colorMap3)
-    image6 = errorDiffusionDithering(image.copy(), colorMap6)
+    image3 = errorDiffusionDithering(image.copy(), colorMap3, 3)
+    image6 = errorDiffusionDithering(image.copy(), colorMap6, 6)
 
     # calculate MSE
     print(f'MSE of error diffusion dithering with n=3: {np.mean((image3 - image) ** 2)}')
