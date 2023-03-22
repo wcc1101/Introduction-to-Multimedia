@@ -96,14 +96,13 @@ def errorDiffusionDithering(image, colorMap):
             # apply error
             if colIndex + 1 < w:
                 addError(image[rowIndex][colIndex + 1], (7 / 16) * error)
-            if rowIndex + 1 < h:
-                addError(image[rowIndex + 1][colIndex], (5 / 16) * error)
-                if colIndex - 1 >= 0:
-                    addError(image[rowIndex + 1][colIndex - 1], (3 / 16) * error)
-
             # better result without this
-                # if colIndex + 1 < w:
-                #     addError(image[rowIndex + 1][colIndex + 1], (1 / 16) * error)
+            # if rowIndex + 1 < h:
+            #     addError(image[rowIndex + 1][colIndex], (5 / 16) * error)
+            #     if colIndex - 1 >= 0:
+            #         addError(image[rowIndex + 1][colIndex - 1], (3 / 16) * error)
+            #     if colIndex + 1 < w:
+            #         addError(image[rowIndex + 1][colIndex + 1], (1 / 16) * error)
 
     # tranform back
     image = np.array(image * 255, dtype=np.uint8)
@@ -115,16 +114,6 @@ def A(image):
     # median cut
     image3 = medianCut(image.copy(), 3)
     image6 = medianCut(image.copy(), 6)
-
-    # # show image
-    # f, ax = plt.subplots(1, 3)
-    # ax[0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    # ax[0].set_title('Original')
-    # ax[1].imshow(cv2.cvtColor(image6, cv2.COLOR_BGR2RGB))
-    # ax[1].set_title('n = 6')
-    # ax[2].imshow(cv2.cvtColor(image3, cv2.COLOR_BGR2RGB))
-    # ax[2].set_title('n = 3')
-    # plt.show()
 
     # calculate MSE
     print(f'MSE of quantization with n=3: {np.mean((image3 - image) ** 2)}')
@@ -142,15 +131,7 @@ def B(image, colorMap3, colorMap6):
     print(f'MSE of error diffusion dithering with n=3: {np.mean((image3 - image) ** 2)}')
     print(f'MSE of error diffusion dithering with n=6: {np.mean((image6 - image) ** 2)}')
 
-    # show image
-    f, ax = plt.subplots(1, 3)
-    ax[0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    ax[0].set_title('Original')
-    ax[1].imshow(cv2.cvtColor(image3, cv2.COLOR_BGR2RGB))
-    ax[1].set_title('dithering 3')
-    ax[2].imshow(cv2.cvtColor(image6, cv2.COLOR_BGR2RGB))
-    ax[2].set_title('dithering 6')
-    plt.show()
+    return image3, image6
 
 if __name__ == '__main__':
 
@@ -166,4 +147,20 @@ if __name__ == '__main__':
     colorMap6 = set([tuple(j / 255) for i in image6 for j in i])
 
     # part B
-    B(image.copy(), colorMap3, colorMap6)
+    image3_d, image6_d = B(image.copy(), colorMap3, colorMap6)
+
+    # plot
+    f, ax = plt.subplots(2, 3, subplot_kw={'xticks': [], 'yticks': []})
+    ax[0][0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    ax[0][0].set_title('Original')
+    ax[0][1].imshow(cv2.cvtColor(image3, cv2.COLOR_BGR2RGB))
+    ax[0][1].set_title('Quantization (n=3)')
+    ax[0][2].imshow(cv2.cvtColor(image3_d, cv2.COLOR_BGR2RGB))
+    ax[0][2].set_title('Dithering (n=3)')
+    ax[1][0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    ax[1][0].set_title('Original')
+    ax[1][1].imshow(cv2.cvtColor(image6, cv2.COLOR_BGR2RGB))
+    ax[1][1].set_title('Quantization (n=6)')
+    ax[1][2].imshow(cv2.cvtColor(image6_d, cv2.COLOR_BGR2RGB))
+    ax[1][2].set_title('Dithering (n=6)')
+    plt.show()
