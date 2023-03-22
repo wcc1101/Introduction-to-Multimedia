@@ -53,29 +53,117 @@ def medianCut(image, n):
 
     return image
 
+def calDistance(color1, color2):
+    return np.sum(np.square(color1 - color2))
+
+def findClosestColor(pixel, colorMap):
+    closestColor = pixel
+    minDistance = np.inf
+
+    # try every color in map
+    for color in colorMap:
+        newDistance = calDistance(np.array(pixel), np.array(color))
+        if newDistance < minDistance:
+            minDistance = newDistance
+            closestColor = color
+
+    return closestColor
+
+def addError(pixel, error):
+    # for BGR seperately
+    for i in range(3):
+        # clamp to 0-255
+        pixel[i] = max(0, min(pixel[i] + error[i], 255))
+
+def errorDiffusionDithering(image, colorMap):
+    # define height and width for the image
+    h, w = image.shape[:2]
+
+    # tranform to float
+    image = np.array(image, dtype=float) / 255
+
+    # dither every pixels
+    for rowIndex in range(h):
+        for colIndex in range(w):
+            # find new color with shortest distance
+            oldColor = image[rowIndex][colIndex].copy()
+            newColor = findClosestColor(image[rowIndex][colIndex], colorMap)
+
+            # calculate error
+            image[rowIndex][colIndex] = newColor
+            error = oldColor - newColor
+
+            # apply error
+            if colIndex + 1 < w:
+                addError(image[rowIndex][colIndex + 1], (7 / 16) * error)
+            if rowIndex + 1 < h:
+                addError(image[rowIndex + 1][colIndex], (5 / 16) * error)
+                if colIndex - 1 >= 0:
+                    addError(image[rowIndex + 1][colIndex - 1], (3 / 16) * error)
+
+            # better result without this
+                # if colIndex + 1 < w:
+                #     addError(image[rowIndex + 1][colIndex + 1], (1 / 16) * error)
+
+    # tranform back
+    image = np.array(image * 255, dtype=np.uint8)
+
+    return image
+
+### A part ###
+def A(image):
+    # median cut
+    image3 = medianCut(image.copy(), 3)
+    image6 = medianCut(image.copy(), 6)
+
+    # # show image
+    # f, ax = plt.subplots(1, 3)
+    # ax[0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    # ax[0].set_title('Original')
+    # ax[1].imshow(cv2.cvtColor(image6, cv2.COLOR_BGR2RGB))
+    # ax[1].set_title('n = 6')
+    # ax[2].imshow(cv2.cvtColor(image3, cv2.COLOR_BGR2RGB))
+    # ax[2].set_title('n = 3')
+    # plt.show()
+
+    # calculate MSE
+    print(f'MSE of quantization with n=3: {np.mean((image3 - image) ** 2)}')
+    print(f'MSE of quantization with n=6: {np.mean((image6 - image) ** 2)}')
+
+    return image3, image6
+
+### B part ###
+def B(image, colorMap3, colorMap6):
+    # error diffusion dithering
+    image3 = errorDiffusionDithering(image.copy(), colorMap3)
+    image6 = errorDiffusionDithering(image.copy(), colorMap6)
+
+    # calculate MSE
+    print(f'MSE of error diffusion dithering with n=3: {np.mean((image3 - image) ** 2)}')
+    print(f'MSE of error diffusion dithering with n=6: {np.mean((image6 - image) ** 2)}')
+
+    # show image
+    f, ax = plt.subplots(1, 3)
+    ax[0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    ax[0].set_title('Original')
+    ax[1].imshow(cv2.cvtColor(image3, cv2.COLOR_BGR2RGB))
+    ax[1].set_title('dithering 3')
+    ax[2].imshow(cv2.cvtColor(image6, cv2.COLOR_BGR2RGB))
+    ax[2].set_title('dithering 6')
+    plt.show()
+
 if __name__ == '__main__':
 
     # open input image
     imageFileName = 'img/Lenna.jpg'
     image = cv2.imread(imageFileName)
 
-    ### A part ###
-    # median cut
-    image6 = medianCut(image.copy(), 6)
-    image3 = medianCut(image.copy(), 3)
+    # part A
+    image3, image6 = A(image.copy())
 
-    # show image
-    f, ax = plt.subplots(1, 3)
-    ax[0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    ax[0].set_title('Original')
-    ax[1].imshow(cv2.cvtColor(image6, cv2.COLOR_BGR2RGB))
-    ax[1].set_title('n = 6')
-    ax[2].imshow(cv2.cvtColor(image3, cv2.COLOR_BGR2RGB))
-    ax[2].set_title('n = 3')
-    plt.show()
+    # generate color map
+    colorMap3 = set([tuple(j / 255) for i in image3 for j in i])
+    colorMap6 = set([tuple(j / 255) for i in image6 for j in i])
 
-    # calculate MSE
-    print(f'MSE of quantization with n=6: {np.mean((image6 - image) ** 2)}')
-    print(f'MSE of quantization with n=3: {np.mean((image3 - image) ** 2)}')
-
-    ### B part ###
+    # part B
+    B(image.copy(), colorMap3, colorMap6)
