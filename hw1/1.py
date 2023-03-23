@@ -74,8 +74,8 @@ def findClosestColor(pixel, colorMap):
 def addError(pixel, error):
     # for BGR seperately
     for i in range(3):
-        # clamp to 0-255
-        pixel[i] = max(0, min(pixel[i] + error[i], 255))
+        # clamp to 0-1
+        pixel[i] = max(0, min(pixel[i] + error[i], 1))
 
 def errorDiffusionDithering(image, colorMap, n):
     # define height and width for the image
@@ -98,13 +98,12 @@ def errorDiffusionDithering(image, colorMap, n):
             # apply error
             if colIndex + 1 < w:
                 addError(image[rowIndex][colIndex + 1], (7 / 16) * error)
-            # better result without this
-            # if rowIndex + 1 < h:
-            #     addError(image[rowIndex + 1][colIndex], (5 / 16) * error)
-            #     if colIndex - 1 >= 0:
-            #         addError(image[rowIndex + 1][colIndex - 1], (3 / 16) * error)
-            #     if colIndex + 1 < w:
-            #         addError(image[rowIndex + 1][colIndex + 1], (1 / 16) * error)
+            if rowIndex + 1 < h:
+                addError(image[rowIndex + 1][colIndex], (5 / 16) * error)
+                if colIndex - 1 >= 0:
+                    addError(image[rowIndex + 1][colIndex - 1], (3 / 16) * error)
+                if colIndex + 1 < w:
+                    addError(image[rowIndex + 1][colIndex + 1], (1 / 16) * error)
 
     # tranform back
     image = np.array(image * 255, dtype=np.uint8)
