@@ -1,0 +1,8 @@
+1. 直接執行1.py，會print出MSE並顯示圖片。
+> python3 1.py
+
+2. 直接執行2.py，會print出圖片的size並顯示圖片。
+> python3 2.py
+
+3. 直接執行3.py，會顯示圖片及histogram。
+> python3 3.py
