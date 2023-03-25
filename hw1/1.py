@@ -26,14 +26,11 @@ def solve(image, flattenImage, depth):
     bRange = np.max(flattenImage[:,2]) - np.min(flattenImage[:,2])
     gRange = np.max(flattenImage[:,3]) - np.min(flattenImage[:,3])
     rRange = np.max(flattenImage[:,4]) - np.min(flattenImage[:,4])
-    # print(f'ranges: R: {rRange}, G: {gRange}, B: {bRange}')
 
     maxRange = np.argmax([-1, -1, bRange, gRange, rRange])
-    # print(f'max range: {maxRange}')
 
     flattenImage = flattenImage[flattenImage[:, maxRange].argsort()]
     medianIndex = int((len(flattenImage) + 1) / 2)
-    # print(f'median index: {medianIndex}')
 
     solve(image, flattenImage[0:medianIndex], depth - 1)
     solve(image, flattenImage[medianIndex:], depth - 1)
@@ -45,7 +42,6 @@ def medianCut(image, n):
         for colIndex, pixel in enumerate(rows):
             flattenImage.append([rowIndex, colIndex, pixel[0], pixel[1], pixel[2]])
     flattenImage = np.array(flattenImage)
-    # print(flattenImage[0])
 
     # run recursion
     solve(image, flattenImage, n)
