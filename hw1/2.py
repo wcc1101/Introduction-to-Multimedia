@@ -24,7 +24,7 @@ def nearestNeighborInterpolation(image):
             image_NN[i][j] = image[int(i / 4)][int(j / 4)]
 
     # save image
-    saveImage(image_NN, f'bee_near.jpg')
+    saveImage(image_NN, 'bee_near.jpg')
 
     return image_NN
 
@@ -33,7 +33,7 @@ def biLinearInterpolation(image):
     h, w = image.shape[:2]
 
     # initialize new image
-    image_BL = np.zeros(shape = (4 * h, 4 * h, 3))
+    image_BL = np.zeros(shape=(4 * h, 4 * h, 3))
 
     # calculate each pixel in new image
     for i in range(4 * h):
@@ -69,7 +69,7 @@ def biLinearInterpolation(image):
     image_BL = image_BL.astype('uint8')
 
     # save image
-    saveImage(image_BL, f'bee_linear.jpg')
+    saveImage(image_BL, 'bee_linear.jpg')
 
     return image_BL
 
@@ -84,7 +84,6 @@ def B(image):
     return image_BL
 
 if __name__ == '__main__':
-
     # open input image
     imageFileName = 'img/bee.jpg'
     image = cv2.imread(imageFileName)

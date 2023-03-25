@@ -138,7 +138,6 @@ def B(image, colorMap3, colorMap6):
     return image3, image6
 
 if __name__ == '__main__':
-
     # open input image
     imageFileName = 'img/Lenna.jpg'
     image = cv2.imread(imageFileName)
