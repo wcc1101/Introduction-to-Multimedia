@@ -44,8 +44,8 @@ def solve(image, flattenImage, depth):
     gRange = np.max(flattenImage[:,3]) - np.min(flattenImage[:,3])
     rRange = np.max(flattenImage[:,4]) - np.min(flattenImage[:,4])
 
+    # sort with the max range
     maxRange = np.argmax([-1, -1, bRange, gRange, rRange])
-
     flattenImage = flattenImage[flattenImage[:, maxRange].argsort()]
     medianIndex = int((len(flattenImage) + 1) / 2)
 

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>report.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h2 id="font-size--5-hw1-report-font"><font size = 5> <strong>HW1 Report</strong> </font></h2>
+<p align="right"> 108062119 鄭幃謙 </p>
+<hr>
+<h3 id="font-size4-1-color-quantization-and-dithering-font"><font size=4> <strong>1. Color Quantization and Dithering</strong> </font></h3>
+<p><strong>a. Perform the median-cut color quantization to transform the given 24-bit color image (Lena image) to an n-bit color image.</strong><br><br>
+<code>medianCut()</code></p>
+<pre class="hljs"><code><div><span class="hljs-comment"># flatten the image</span>
+flattenImage = []
+<span class="hljs-keyword">for</span> rowIndex, rows <span class="hljs-keyword">in</span> enumerate(image):
+    <span class="hljs-keyword">for</span> colIndex, pixel <span class="hljs-keyword">in</span> enumerate(rows):
+        flattenImage.append([rowIndex, colIndex, pixel[<span class="hljs-number">0</span>], pixel[<span class="hljs-number">1</span>], pixel[<span class="hljs-number">2</span>]])
+flattenImage = np.array(flattenImage)
+<span class="hljs-comment"># run recursion</span>
+solve(image, flattenImage, n)
+</div></code></pre>
+<p><code>solve()</code></p>
+<pre class="hljs"><code><div><span class="hljs-comment"># end of recursion</span>
+<span class="hljs-keyword">if</span> depth == <span class="hljs-number">0</span>:
+    bAverage = np.mean(flattenImage[:,<span class="hljs-number">2</span>])
+    gAverage = np.mean(flattenImage[:,<span class="hljs-number">3</span>])
+    rAverage = np.mean(flattenImage[:,<span class="hljs-number">4</span>])
+    <span class="hljs-keyword">for</span> pixel <span class="hljs-keyword">in</span> flattenImage:
+        image[pixel[<span class="hljs-number">0</span>]][pixel[<span class="hljs-number">1</span>]] = [bAverage, gAverage, rAverage]
+    <span class="hljs-keyword">return</span>
+<span class="hljs-comment"># calculate BGR ranges</span>
+bRange = np.max(flattenImage[:,<span class="hljs-number">2</span>]) - np.min(flattenImage[:,<span class="hljs-number">2</span>])
+gRange = np.max(flattenImage[:,<span class="hljs-number">3</span>]) - np.min(flattenImage[:,<span class="hljs-number">3</span>])
+rRange = np.max(flattenImage[:,<span class="hljs-number">4</span>]) - np.min(flattenImage[:,<span class="hljs-number">4</span>])
+<span class="hljs-comment"># sort with the max range</span>
+maxRange = np.argmax([<span class="hljs-number">-1</span>, <span class="hljs-number">-1</span>, bRange, gRange, rRange])
+flattenImage = flattenImage[flattenImage[:, maxRange].argsort()]
+medianIndex = int((len(flattenImage) + <span class="hljs-number">1</span>) / <span class="hljs-number">2</span>)
+<span class="hljs-comment"># next depth</span>
+solve(image, flattenImage[<span class="hljs-number">0</span>:medianIndex], depth - <span class="hljs-number">1</span>)
+solve(image, flattenImage[medianIndex:], depth - <span class="hljs-number">1</span>)
+</div></code></pre>
+<p>首先是利用median-cut algorithm，在遞迴中每步將bucket中所有pixel根據R, G, B值中range最大的sort，並分成兩個bucket下去遞迴，在遞迴的終點將所有pixel的值改為這個bucket中的平均值。如此一來因為遞迴n個深度，最後分成2^n個bucket，得到2^n種顏色。<br></p>
+<p><strong>a. You need to find the index colors and construct the Look-Up-Table for the bit-reduced color quantization.</strong><br></p>
+<pre class="hljs"><code><div><span class="hljs-comment"># build look-up table</span>
+lookUpTable3 = utils.constructTable(image3)
+lookUpTable6 = utils.constructTable(image6)
+<span class="hljs-comment"># bit reduce</span>
+image3_reduce = utils.bitReduce(image3, lookUpTable3)
+image6_reduce = utils.bitReduce(image6, lookUpTable6)
+</div></code></pre>
+<p><code>constructTable()</code></p>
+<pre class="hljs"><code><div>colorMap = set([tuple(j) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> image <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> i])
+table = {}
+code = <span class="hljs-number">0</span>
+<span class="hljs-keyword">for</span> color <span class="hljs-keyword">in</span> colorMap:
+    table[color] = code
+    table[code] = color
+    code += <span class="hljs-number">1</span>
+<span class="hljs-keyword">return</span> table
+</div></code></pre>
+<p><code>bitReduce()</code></p>
+<pre class="hljs"><code><div>newImage = np.zeros(shape=(image.shape[<span class="hljs-number">0</span>], image.shape[<span class="hljs-number">1</span>]), dtype=<span class="hljs-string">'uint8'</span>)
+<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(image.shape[<span class="hljs-number">0</span>]):
+    <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> range(image.shape[<span class="hljs-number">1</span>]):
+        newImage[i][j] = table[tuple(image[i][j])]
+<span class="hljs-keyword">return</span> newImage
+</div></code></pre>
+<p>建造一個dictionary用以存圖片中的2^n個顏色及編碼後的數字，如n=3時編碼會是0-7，就可以用3個bit來表示。<br></p>
+<p><strong>a. Show the color-quantized image and compute the color quantization MSE (mean-square-error) error</strong><br></p>
+<center>
+<img src="1.png"/>
+</center>
+<p><strong>b. How do you divide your data in hw3-2, hw3-3?</strong><br>
+我讓每個block對應到一個Blocked Floyd Warshall algorithm中的block，而在block中每一個thread對應到一個vertex。在Phase 1時只會用到pivot block自己的數值，在Phase 2時會用到Phase 1中計算的pivot block以及自己的數值，而在Phase 3時則需要自己對應到pivot row, pivot col的兩個block的數值。<br>
+在hw3-2中，每個GPU block都有全部distance的值，因此只需要在計算時使用對應的block的數值。在hw3-3中，我把Phase 3的block分配給兩個GPU，若總block數量是奇數，則由第二個GPU多拿一個。<br></p>
+<p><strong>c. What's your configuration in hw3-2, hw3-3? And why?</strong><br>
+<strong>hw3-2</strong><br></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center">blocking factor</th>
+<th style="text-align:center">nBlocks</th>
+<th style="text-align:center">nThreads</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Phase 1</td>
+<td style="text-align:center">32</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">(B, B)</td>
+</tr>
+<tr>
+<td style="text-align:center">Phase 2</td>
+<td style="text-align:center">32</td>
+<td style="text-align:center">rounds</td>
+<td style="text-align:center">(B, B)</td>
+</tr>
+<tr>
+<td style="text-align:center">Phase 3</td>
+<td style="text-align:center">32</td>
+<td style="text-align:center">(rounds, rounds)</td>
+<td style="text-align:center">(B, B)</td>
+</tr>
+</tbody>
+</table>
+<p>因為將blocking Factor設為32，且所有的block中的thread數量都是B * B，也就是1024，剛好達到cuda的上限，也因此讓每個thread剛好能對應到一個vertex。<br>
+因此在Phase 1中只要計算pivot block就只需要一個block，而在Phase 2中需要計算2 * (rounds - 1)個block，因為我讓一個GPU block同時計算row和column上的block，因此我們需要rounds個block，在Phase 3則是計算剩下所有block，也就是(rounds - 1) * (rounds - 1)個block&gt;。因此我們用到rounds個block。<br><br><br><br><br><br><br></p>
+<p><strong>hw3-3</strong><br></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center">blocking factor</th>
+<th style="text-align:center">nBlocks</th>
+<th style="text-align:center">nThreads</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Phase 1</td>
+<td style="text-align:center">32</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">(B, B)</td>
+</tr>
+<tr>
+<td style="text-align:center">Phase 2</td>
+<td style="text-align:center">32</td>
+<td style="text-align:center">rounds</td>
+<td style="text-align:center">(B, B)</td>
+</tr>
+<tr>
+<td style="text-align:center">Phase 3</td>
+<td style="text-align:center">32</td>
+<td style="text-align:center">(rounds, split)</td>
+<td style="text-align:center">(B, B)</td>
+</tr>
+</tbody>
+</table>
+<p>與hw3-2類似，但是在Phase 3中，因為要把資料分給兩個GPU，因此一個CPU要用到(split * rounds);</p>
+<p><strong>d. How do you imlpement the communication in hw3-3?</strong><br>
+<strong>e. Briefly describe your implementations</strong><br></p>
+<p><strong>hw3-2</strong><br>
+先將讀進的V加上padding而能被B整除</p>
+<pre class="hljs"><code><div>V_padding = (V % B == <span class="hljs-number">0</span>) ? V : (V / B + <span class="hljs-number">1</span>) * B;
+</div></code></pre>
+<p>將讀進的資料存為一維陣列Dist，size為V_padding * V_padding，並將edges讀進並寫進Dist。<br>
+接著把Dist複製到device</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">size_t</span> size = <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">int</span>) * V_padding * V_padding;
+cudaMalloc(&amp;Dist_device, size);
+cudaMemcpy(Dist_device, Dist, size, cudaMemcpyHostToDevice);
+</div></code></pre>
+<p>根據V_padding, B算出總共需要的rounds數，並且在rounds內不斷進行Phase 1 -&gt; Phase 2 -&gt; Phase 3，最後算完之後把結果複製回host</p>
+<pre class="hljs"><code><div>rounds = <span class="hljs-built_in">ceil</span>(V_padding / B);
+<span class="hljs-function">dim3 <span class="hljs-title">num_threads</span><span class="hljs-params">(B, B)</span>, <span class="hljs-title">num_blocks_3</span><span class="hljs-params">(rounds, rounds)</span></span>;
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> round = <span class="hljs-number">0</span>; round &lt; rounds; round++) {
+    Phase1&lt;&lt;&lt;<span class="hljs-number">1</span>, num_threads&gt;&gt;&gt;(Dist_device, round, V_padding);
+    Phase2&lt;&lt;&lt;rounds, num_threads&gt;&gt;&gt;(Dist_device, round, V_padding);
+    Phase3&lt;&lt;&lt;num_blocks_3, num_threads&gt;&gt;&gt;(Dist_device, round, V_padding);
+}
+cudaMemcpy(Dist, Dist_device, size, cudaMemcpyDeviceToHost);
+</div></code></pre>
+<p>在Phase 1中，根據threadIdx, round, B算出要計算的block位置，並用Floyd Warshall algorithm算出結果。</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">int</span> i = threadIdx.y + round * B;
+<span class="hljs-keyword">int</span> j = threadIdx.x + round * B;
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> k = round * B; k &lt; (round + <span class="hljs-number">1</span>) * B; k++) {
+    <span class="hljs-keyword">if</span> (d[i * v + k] + d[k * v + j] &lt; d[i * v + j])
+        d[i * v + j] = d[i * v + k] + d[k * v + j];
+    __syncthreads();
+}
+</div></code></pre>
+<p>在Phase 2中，根據blockIdx.y判斷是做row block還是col block並決定i, j，再以Floyd Warshall algorithm算出結果，這裡不用<code>__syncthreads()</code>是因為Phase 2只對Phase 1的結果有dependency。</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">if</span> (blockIdx.x == round) <span class="hljs-comment">// pivot block</span>
+    <span class="hljs-keyword">return</span>;
+<span class="hljs-keyword">int</span> i = threadIdx.y + blockIdx.x * B;
+<span class="hljs-keyword">int</span> j = threadIdx.x + blockIdx.x * B;
+<span class="hljs-keyword">int</span> pivot_i = threadIdx.y + round * B;
+<span class="hljs-keyword">int</span> pivot_j = threadIdx.x + round * B;
+<span class="hljs-keyword">if</span> (blockIdx.y == <span class="hljs-number">0</span>) <span class="hljs-comment">// pivot row</span>
+    i = pivot_i;
+<span class="hljs-keyword">else</span> <span class="hljs-comment">// pivot column</span>
+    j = pivot_j;
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> k = round * B; k &lt; (round + <span class="hljs-number">1</span>) * B; k++) {
+    <span class="hljs-keyword">if</span> (d[i * v + k] + d[k * v + j] &lt; d[i * v + j])
+        d[i * v + j] = d[i * v + k] + d[k * v + j];
+}
+</div></code></pre>
+<p>在Phase 3中，根據threadIdx, blockIdx, B算出要計算的block位置，再以Floyd Warshall algorithm算出結果，這裡不用<code>__syncthreads()</code>是因為Phase 3只對Phase 2的結果有dependency。</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">if</span> (blockIdx.x == round || blockIdx.y == round) <span class="hljs-comment">// calculated</span>
+        <span class="hljs-keyword">return</span>;
+<span class="hljs-keyword">int</span> i = threadIdx.y + blockIdx.y * B;
+<span class="hljs-keyword">int</span> j = threadIdx.x + blockIdx.x * B;
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> k = round * B; k &lt; (round + <span class="hljs-number">1</span>) * B; k++) {
+    <span class="hljs-keyword">if</span> (d[i * v + k] + d[k * v + j] &lt; d[i * v + j])
+        d[i * v + j] = d[i * v + k] + d[k * v + j];
+}
+</div></code></pre>
+<p><strong>hw3-3</strong><br>
+在hw3-3中，使用兩個GPU實作，我使用OpenMP實作。因為主要是Phase 3的計算量很大，我在Phase 1, Phase 就使用原本的kernel function，而在Phase 3中，把所有要計算的block分成一半，但在不同round時，會有一些data需要溝通。舉例來說，當3 * 3的problem進行第二輪時，在計算最左上角的block時，會用到它左邊及下面的block的data，而它左邊的block是由另一個thread計算，下面則是上一輪做過的，因此需要複製的是另一個thread的row block。如下圖：</p>
+<center class="half">
+<img src="3-3.png" height="160" width="370"/>
+</center>
+<pre class="hljs"><code><div><span class="hljs-keyword">int</span> curRow = round * B * V_padding;
+<span class="hljs-keyword">if</span> ((round &gt;= offset) &amp;&amp; (round &lt; offset + round_split))
+    cudaMemcpy(Dist_device[otherid] + curRow, Dist_device[id] + curRow, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">int</span>) * B * V_padding, cudaMemcpyDeviceToDevice);
+</div></code></pre>
+<h3 id="font-size4-2-profiling-results-font"><font size=4> <strong>2. Profiling Results</strong> </font></h3>
+<p>使用p11k1作為testcase。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center">Min</th>
+<th style="text-align:center">Max</th>
+<th style="text-align:center">Avg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">occupancy</td>
+<td style="text-align:center">0.876928</td>
+<td style="text-align:center">0.87828</td>
+<td style="text-align:center">0.877548</td>
+</tr>
+<tr>
+<td style="text-align:center">SM efficiency</td>
+<td style="text-align:center">99.71%</td>
+<td style="text-align:center">99.88%</td>
+<td style="text-align:center">99.87%</td>
+</tr>
+<tr>
+<td style="text-align:center">shared memory load throughput</td>
+<td style="text-align:center">2820.5 GB/s</td>
+<td style="text-align:center">2864.6 GB/s</td>
+<td style="text-align:center">2835.9 GB/s</td>
+</tr>
+<tr>
+<td style="text-align:center">shared memory store throughput</td>
+<td style="text-align:center">117.52 GB/s</td>
+<td style="text-align:center">119.36 GB/s</td>
+<td style="text-align:center">118.16 GB/s</td>
+</tr>
+<tr>
+<td style="text-align:center">global memory load throughput</td>
+<td style="text-align:center">176.28 GB/s</td>
+<td style="text-align:center">179.04 GB/s</td>
+<td style="text-align:center">177.25 GB/s</td>
+</tr>
+<tr>
+<td style="text-align:center">global memory store throughput</td>
+<td style="text-align:center">58.759 GB/s</td>
+<td style="text-align:center">59.680 GB/s</td>
+<td style="text-align:center">59.082 GB/s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="font-size4-3-experiment--analysis-font"><font size=4> <strong>3. Experiment &amp; Analysis</strong> </font></h3>
+<p><strong>a. System Spec</strong><br>
+使用課程提供的hades。<br>
+<strong>b. Blocking Factor</strong><br>
+使用c20.1作為testcase，GOPS為integer instruction除以total time，memory bandwidth為load, store加總。</p>
+<center class="half">
+<img src="int.png" height="312" width="480"/>
+</center>
+<center class="half">
+<p>
+Figure 1. Computation performance
+</p>
+</center>
+<center class="half">
+<img src="global.png" height="312" width="480"/>
+</center>
+<center class="half">
+<p>
+Figure 2. Global memory throughput
+</p>
+</center>
+<center class="half">
+<img src="share.png" height="312" width="480"/>
+</center>
+<center class="half">
+<p>
+Figure 3. Shared memory throughput
+</p>
+</center>
+圖1中可以看出Blocking factor越大越好，圖2可以發現Blocking factor越大時需要access global memory的傳輸量變少，圖3可以發現Blocking factor越大使用shared memory越多。因此我選擇32。<br><br><br><br><br><br><br><br><br><br><br><br>
+<p><strong>c. Optimization</strong><br></p>
+<center class="half">
+<img src="met.png" height="312" width="480"/>
+</center>
+<center class="half">
+<p>
+Figure 4. Performance optimization
+</p>
+</center>
+圖中可以看出shared memory的優化是最多的。
+<p><strong>d. Time Distribution</strong><br></p>
+<center class="half">
+<img src="time.png" height="312" width="480"/>
+</center>
+<center class="half">
+<p>
+Figure 4. Time distribution
+</p>
+</center>
+圖中可以看出最耗時的還是computing，因此若要繼續優化的方向還是往這方面為主，不過越大的testcase可以看到I/O也會是一個負擔，我想這兩方面還有優化空間。
+<h3 id="font-size4-4-experience--conclusion-font"><font size=4> <strong>4. Experience &amp; Conclusion</strong> </font></h3>
+<p>這次作業中我花了非常多的時間，在寫的時候遇到很多麻煩一直上網查資料，在過程中學到了很多東西，但最後還是無法過全部的測資，還是有點遺憾。<br>
+我學到最多的是nvprof的使用，它能看到很多程式執行的細節，對於程式開發者有很大的幫助。</p>
+
+</body>
+</html>

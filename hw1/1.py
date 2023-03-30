@@ -54,18 +54,18 @@ if __name__ == '__main__':
     image3_d_reduce = utils.bitReduce(image3_d, lookUpTable3)
     image6_d_reduce = utils.bitReduce(image6_d, lookUpTable6)
 
-    # plot
+    # # plot
     f, ax = plt.subplots(2, 3, subplot_kw={'xticks': [], 'yticks': []})
     ax[0][0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     ax[0][0].set_title('Original')
     ax[0][1].imshow(cv2.cvtColor(image3, cv2.COLOR_BGR2RGB))
     ax[0][1].set_title('Quantization (n=3)')
-    ax[0][2].imshow(cv2.cvtColor(image3_d, cv2.COLOR_BGR2RGB))
-    ax[0][2].set_title('Dithering (n=3)')
+    ax[0][2].imshow(cv2.cvtColor(image6, cv2.COLOR_BGR2RGB))
+    ax[0][2].set_title('Quantization (n=6)')
     ax[1][0].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     ax[1][0].set_title('Original')
-    ax[1][1].imshow(cv2.cvtColor(image6, cv2.COLOR_BGR2RGB))
-    ax[1][1].set_title('Quantization (n=6)')
+    ax[1][1].imshow(cv2.cvtColor(image3_d, cv2.COLOR_BGR2RGB))
+    ax[1][1].set_title('Dithering (n=3)')
     ax[1][2].imshow(cv2.cvtColor(image6_d, cv2.COLOR_BGR2RGB))
     ax[1][2].set_title('Dithering (n=6)')
     plt.show()
