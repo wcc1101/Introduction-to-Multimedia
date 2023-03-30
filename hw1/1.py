@@ -36,8 +36,8 @@ if __name__ == '__main__':
     image3, image6 = A(image.copy())
 
     # generate color map
-    colorMap3 = set([tuple(j / 255) for i in image3 for j in i])
-    colorMap6 = set([tuple(j / 255) for i in image6 for j in i])
+    colorMap3 = set([tuple(j) for i in image3 for j in i])
+    colorMap6 = set([tuple(j) for i in image6 for j in i])
 
     # build look-up table
     lookUpTable3 = utils.constructTable(image3)
@@ -53,8 +53,6 @@ if __name__ == '__main__':
     # bit reduce
     image3_d_reduce = utils.bitReduce(image3_d, lookUpTable3)
     image6_d_reduce = utils.bitReduce(image6_d, lookUpTable6)
-
-    
 
     # plot
     f, ax = plt.subplots(2, 3, subplot_kw={'xticks': [], 'yticks': []})

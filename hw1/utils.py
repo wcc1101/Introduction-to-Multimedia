@@ -3,9 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-def bitReduce(image):
-    table = constructTable(image)
-
+def bitReduce(image, table):
     newImage = np.zeros(shape=(image.shape[0], image.shape[1]), dtype='uint8')
     for i in range(image.shape[0]):
         for j in range(image.shape[1]):
@@ -89,15 +87,15 @@ def findClosestColor(pixel, colorMap):
 def addError(pixel, error):
     # for BGR seperately
     for i in range(3):
-        # clamp to 0-1
-        pixel[i] = max(0, min(pixel[i] + error[i], 1))
+        # clamp to 0-255
+        pixel[i] = max(0, min(pixel[i] + error[i], 255))
 
 def errorDiffusionDithering(image, colorMap, n):
     # define height and width for the image
     h, w = image.shape[:2]
 
     # tranform to float
-    image = np.array(image, dtype=float) / 255
+    image = np.array(image, dtype=float)
 
     # dither every pixels
     for rowIndex in range(h):
@@ -121,7 +119,7 @@ def errorDiffusionDithering(image, colorMap, n):
                     addError(image[rowIndex + 1][colIndex + 1], (1 / 16) * error)
 
     # tranform back
-    image = np.array(image * 255, dtype='uint8')
+    image = np.array(image, dtype='uint8')
 
     # save image
     saveImage(image, f'error_diffusion_dithering_{str(n)}.jpg')
@@ -167,16 +165,14 @@ def biLinearInterpolation(image):
             u = x - xIndex
             v = y - yIndex
 
-            # calculate by point * area
-            if xIndex >= 0:
-                if yIndex >= 0:
-                    image_BL[i][j] += (1 - u) * (1 - v) * image[xIndex][yIndex]
-                    if xIndex + 1 < h:
-                        image_BL[i][j] += u * (1 - v) * image[xIndex + 1][yIndex]
-                if yIndex + 1 < w:
-                    image_BL[i][j] += (1 - u) * v * image[xIndex][yIndex + 1]
-                    if xIndex + 1 < h:
-                        image_BL[i][j] += u * v * image[xIndex + 1][yIndex + 1]
+            # # calculate by value * area
+            image_BL[i][j] += (1 - u) * (1 - v) * image[xIndex][yIndex]
+            if xIndex + 1 < h:
+                image_BL[i][j] += u * (1 - v) * image[xIndex + 1][yIndex]
+            if yIndex + 1 < w:
+                image_BL[i][j] += (1 - u) * v * image[xIndex][yIndex + 1]
+                if xIndex + 1 < h:
+                    image_BL[i][j] += u * v * image[xIndex + 1][yIndex + 1]
 
             # fix value
             for c in range(3):
