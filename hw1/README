@@ -1,3 +1,5 @@
+使用package: numpy, cv2, matplotlib, os
+
 1. 直接執行1.py，會print出MSE並顯示圖片。
 > python3 1.py
 
