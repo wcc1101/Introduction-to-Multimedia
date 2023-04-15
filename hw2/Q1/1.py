@@ -1,5 +1,14 @@
 import cv2
 import numpy as np
+import os
+
+def saveImage(image, fileName):
+    outDir = 'output'
+    try:
+        os.mkdir(outDir)
+    except:
+        pass
+    cv2.imwrite(os.path.join(outDir, fileName), image)
 
 def YCbCr2RGB(image):
     # define height and width for the image
@@ -18,6 +27,8 @@ def YCbCr2RGB(image):
             # B = 1.164 * (Y - 16) + 2.017 * (Cb - 128)
             imageRGB[i, j, 2] += 1.164 * (image[i, j, 0] - 16) + 2.017 * (image[i, j, 1] - 128)
 
+    np.putmask(imageRGB, imageRGB > 255, 255)
+    np.putmask(imageRGB, imageRGB < 0, 0)
     imageRGB = imageRGB.astype('uint8')
 
     return imageRGB
@@ -55,7 +66,11 @@ def DCTProcess(image, dctMat):
     # D = A * I * A'
     return np.dot(np.dot(dctMat, image), np.transpose(dctMat))
 
-def DCT2d(image):
+def IDCTProcess(image, dctMat):
+    # D' = A' * D * A
+    return np.dot(np.dot(np.transpose(dctMat), image), dctMat)
+
+def DCT2d(image, inverse = False):
     # define height and width for the image
     h, w = image.shape[:2]
 
@@ -68,7 +83,10 @@ def DCT2d(image):
     # divide into 8*8 blocks
     for i in range(0, h, 8):
         for j in range(0, w, 8):
-            image_dct[i:i+8, j:j+8] = DCTProcess(image[i:i+8, j:j+8], dctMat)
+            if inverse:
+                image_dct[i:i+8, j:j+8] = IDCTProcess(image[i:i+8, j:j+8], dctMat)
+            else:
+                image_dct[i:i+8, j:j+8] = DCTProcess(image[i:i+8, j:j+8], dctMat)
     
     return image_dct
 
@@ -89,19 +107,29 @@ def coeffRound(image, n):
     
     return image_rounded
 
-def uniformQuantize(image, m):
+def uniformQuantize(image, m, t):
     # define height and width for the image
     h, w = image.shape[:2]
 
     # define quantize table
-    quantizeTable = np.array([[16, 11, 10, 16, 24, 40, 51, 61],
-                            [12, 12, 14, 19, 26, 58, 60, 55],
-                            [14, 13, 16, 24, 40, 57, 69, 56],
-                            [14, 17, 22, 29, 51, 87, 80, 62],
-                            [18, 22, 37, 56, 68, 109, 103, 77],
-                            [24, 35, 55, 64, 81, 104, 113, 92],
-                            [49, 64, 78, 87, 103, 121, 120, 101],
-                            [72, 92, 95, 98, 112, 100, 103, 99]])
+    if t == 'L':
+        quantizeTable = np.array([[16, 11, 10, 16, 24, 40, 51, 61],
+                                  [12, 12, 14, 19, 26, 58, 60, 55],
+                                  [14, 13, 16, 24, 40, 57, 69, 56],
+                                  [14, 17, 22, 29, 51, 87, 80, 62],
+                                  [18, 22, 37, 56, 68, 109, 103, 77],
+                                  [24, 35, 55, 64, 81, 104, 113, 92],
+                                  [49, 64, 78, 87, 103, 121, 120, 101],
+                                  [72, 92, 95, 98, 112, 100, 103, 99]])
+    else:
+        quantizeTable = np.array([[17, 18, 24, 47, 99, 99, 99, 99],
+                                  [18, 21, 26, 66, 99, 99, 99, 99],
+                                  [24, 26, 56, 99, 99, 99, 99, 99],
+                                  [47, 66, 99, 99, 99, 99, 99, 99],
+                                  [99, 99, 99, 99, 99, 99, 99, 99],
+                                  [99, 99, 99, 99, 99, 99, 99, 99],
+                                  [99, 99, 99, 99, 99, 99, 99, 99],
+                                  [99, 99, 99, 99, 99, 99, 99, 99]])
     
     # initialize quantized image
     image_quantized = np.zeros_like(image)
@@ -110,25 +138,109 @@ def uniformQuantize(image, m):
     for i in range(0, h, 8):
         for j in range(0, w, 8):
             image_quantized[i:i+8, j:j+8] = np.round(image[i:i+8, j:j+8] / quantizeTable)
-    
-    return image_quantized
 
-def DCTCompression(imageRGB, n, m):
-    # step 1. convert to YCbCr
-    imageYCbCr = RGB2YCbCr(imageRGB)
-    # step 2. Shift pixel values by subtracting 128
-    imageYCbCr = imageYCbCr - 128
-    # step 3. divide to 8*8 blocks and perform 2D-DCT on each block
-    imageY_dct = DCT2d(imageYCbCr[:, :, 0])
-    print(imageY_dct[0:4, 0:4])
-    # step 4. for each block, keep only lower-frequency coefficients
-    imageY_dct_rounded = coeffRound(imageY_dct, n)
-    print(imageY_dct_rounded[0:4, 0:4])
-    # step 5. Apply uniform quantization with suitable quantization table
-    imageY_dct_rounded_quantized = uniformQuantize(imageY_dct_rounded, m)
-    print(imageY_dct_rounded_quantized[0:4, 0:4])
-    # step 6. save each coefficient with m bits
+    # save with m bits
+    maxValue = np.amax(image_quantized)
+    minValue = np.amin(image_quantized)
+    quant_step = (maxValue - minValue) / (2 ** m - 1)
+    image_quantized = np.round((image_quantized - minValue) / quant_step)
     
+    return image_quantized, quant_step, minValue
+
+def unQuantize(image, quant_step, t, minValue):
+    # define height and width for the image
+    h, w = image.shape[:2]
+
+    # define quantize table
+    if t == 'L':
+        quantizeTable = np.array([[16, 11, 10, 16, 24, 40, 51, 61],
+                                  [12, 12, 14, 19, 26, 58, 60, 55],
+                                  [14, 13, 16, 24, 40, 57, 69, 56],
+                                  [14, 17, 22, 29, 51, 87, 80, 62],
+                                  [18, 22, 37, 56, 68, 109, 103, 77],
+                                  [24, 35, 55, 64, 81, 104, 113, 92],
+                                  [49, 64, 78, 87, 103, 121, 120, 101],
+                                  [72, 92, 95, 98, 112, 100, 103, 99]])
+    else:
+        quantizeTable = np.array([[17, 18, 24, 47, 99, 99, 99, 99],
+                                  [18, 21, 26, 66, 99, 99, 99, 99],
+                                  [24, 26, 56, 99, 99, 99, 99, 99],
+                                  [47, 66, 99, 99, 99, 99, 99, 99],
+                                  [99, 99, 99, 99, 99, 99, 99, 99],
+                                  [99, 99, 99, 99, 99, 99, 99, 99],
+                                  [99, 99, 99, 99, 99, 99, 99, 99],
+                                  [99, 99, 99, 99, 99, 99, 99, 99]])
+
+    # unquantize "save with m bits"
+    image = image * quant_step + minValue
+
+    # unquantize "quantize table"
+    # initialize unquantized image
+    image_unquantized = np.zeros_like(image)
+
+    # divide into 8*8 blocks
+    for i in range(0, h, 8):
+        for j in range(0, w, 8):
+            image_unquantized[i:i+8, j:j+8] = image[i:i+8, j:j+8] * quantizeTable
+
+    return image_unquantized
+
+def DCTCompression(image, n, m, t):
+    # perform 2D-DCT on each block
+    image_dct = DCT2d(image)
+
+    # for each block, keep only lower-frequency coefficients
+    image_dct_rounded = coeffRound(image_dct, n)
+
+    # apply uniform quantization with suitable quantization table and save each coefficient with m bits
+    image_dct_rounded_quantized, quant_step, minValue = uniformQuantize(image_dct_rounded, m, t)
+
+    ###############################################
+    # unquantize
+    image_dct = unQuantize(image_dct_rounded_quantized, quant_step, t, minValue)
+
+    # inverse-DCT
+    image = DCT2d(image_dct, inverse=True)
+
+    return image
+
+def A(image, n, m):
+    # shift pixel values by subtracting 128
+    image_ = image.astype('float64')
+    image_ = image_ - 128
+
+    # Y channel
+    image_[:,:,0] = DCTCompression(image_[:,:,0], n, m, t='L')
+    # Cb channel
+    image_[:,:,1] = DCTCompression(image_[:,:,1], n, m, t='C')
+    # # Cr channel
+    image_[:,:,2] = DCTCompression(image_[:,:,2], n, m, t='C')
+
+    # shift pixel values back
+    image_ = image_ + 128
+    np.putmask(image_, image_ > 255, 255)
+    np.putmask(image_, image_ < 0, 0)
+    image_ = image_.astype('uint8')
+
+    return image_
+
+def B(image, n, m):
+    # convert to YCbCr
+    imageYCbCr = RGB2YCbCr(image)
+    # shift pixel values by subtracting 128
+    imageYCbCr = imageYCbCr - 128
+
+    # Y channel
+    imageYCbCr[:,:,0] = DCTCompression(imageYCbCr[:,:,0], n, m, t='L')
+    # Cb channel
+    imageYCbCr[:,:,1] = DCTCompression(imageYCbCr[:,:,1], n, m, t='C')
+    # # Cr channel
+    imageYCbCr[:,:,2] = DCTCompression(imageYCbCr[:,:,2], n, m, t='C')
+
+    # shift pixel values back
+    imageYCbCr = imageYCbCr + 128
+    # convert to RGB
+    imageRGB = YCbCr2RGB(imageYCbCr)
 
     return imageRGB
 
@@ -140,5 +252,17 @@ if __name__ == '__main__':
     catImageRGB = catImageBGR[:,:,::-1]
     barImageRGB = barImageBGR[:,:,::-1]
 
-    
-    catImage_n2m2 = DCTCompression(catImageRGB.copy(), 2, 2)
+    d = {'cat': catImageRGB, 'bar': barImageRGB}
+    ### A part ###
+    for file in ['cat', 'bar']:
+        for n in [2, 4]:
+            for m in [4, 8]:
+                image = A(d[file], n, m)
+                saveImage(image[:,:,::-1], f'{file}_n{n}m{m}_a.jpg')
+
+    ### B part ###
+    for file in ['cat', 'bar']:
+        for n in [2, 4]:
+            for m in [4, 8]:
+                image = B(d[file], n, m)
+                saveImage(image[:,:,::-1], f'{file}_n{n}m{m}_b.jpg')
