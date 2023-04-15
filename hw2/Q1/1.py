@@ -227,6 +227,9 @@ def A(image, n, m):
 def B(image, n, m):
     # convert to YCbCr
     imageYCbCr = RGB2YCbCr(image)
+    # apply 4:2:0
+    imageYCbCr[1::2, :] = imageYCbCr[::2, :]
+    imageYCbCr[:, 1::2] = imageYCbCr[:, ::2] 
     # shift pixel values by subtracting 128
     imageYCbCr = imageYCbCr - 128
 
