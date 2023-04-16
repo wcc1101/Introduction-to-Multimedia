@@ -91,7 +91,6 @@ def subSample(signal, fs, newfs=2000):
     newSignal = np.zeros(len(signal) // subRatio)
     for i in range(len(newSignal)):
         newSignal[i] = np.mean(signal[i*subRatio:(i+1)*subRatio])
-
     return newSignal
 
 def echo(signal, mode='one'):
@@ -114,7 +113,7 @@ if __name__ == '__main__':
     
     # build filter
     filter1 = constructFilter(freq_sample, 10001, 'low-pass', 400)
-    filter2 = constructFilter(freq_sample, 10001, 'band-pass', 800, 1500)
+    filter2 = constructFilter(freq_sample, 10001, 'high-pass', 800)
     filter3 = constructFilter(freq_sample, 10001, 'band-pass', 400, 800)
 
     # convolution
@@ -135,24 +134,24 @@ if __name__ == '__main__':
     saveSpectrum(audio, freq_sample, 'input.png')
 
     saveSpectrum(filter1, freq_sample, 'Lowpass_spectrum.png')
-    saveSpectrum(filter2, freq_sample, 'Bandpass1_spectrum.png')
-    saveSpectrum(filter3, freq_sample, 'Bandpass2_spectrum.png')
+    saveSpectrum(filter2, freq_sample, 'Highpass_spectrum.png')
+    saveSpectrum(filter3, freq_sample, 'Bandpass_spectrum.png')
 
     saveShape(filter1, 'Lowpass_shape.png')
-    saveShape(filter2, 'Bandpass1_shape.png')
-    saveShape(filter3, 'Bandpass2_shape.png')
+    saveShape(filter2, 'Highpass_shape.png')
+    saveShape(filter3, 'Bandpass_shape.png')
 
     saveSpectrum(filtered_audio1, freq_sample, 'output_by_Lowpass.png')
-    saveSpectrum(filtered_audio2, freq_sample, 'output_by_Bandpass1.png')
-    saveSpectrum(filtered_audio3, freq_sample, 'output_by_Bandpass2.png')
+    saveSpectrum(filtered_audio2, freq_sample, 'output_by_Highpass.png')
+    saveSpectrum(filtered_audio3, freq_sample, 'output_by_Bandpass.png')
 
     wavfile.write('output/Lowpass_400.wav', freq_sample, filtered_audio1.astype('float32'))
-    wavfile.write('output/Bandpass1_800_1500.wav', freq_sample, filtered_audio2.astype('float32'))
-    wavfile.write('output/Bandpass2_400_800.wav', freq_sample, filtered_audio3.astype('float32'))
+    wavfile.write('output/Highpass_800.wav', freq_sample, filtered_audio2.astype('float32'))
+    wavfile.write('output/Bandpass_400_800.wav', freq_sample, filtered_audio3.astype('float32'))
 
     wavfile.write('output/Lowpass_400_2kHz.wav', 2000, filtered_audio1_2k.astype('float32'))
-    wavfile.write('output/Bandpass1_800_1500_2kHz.wav', 2000, filtered_audio2_2k.astype('float32'))
-    wavfile.write('output/Bandpass2_400_800_2kHz.wav', 2000, filtered_audio3_2k.astype('float32'))
+    wavfile.write('output/Highpass_800_2kHz.wav', 2000, filtered_audio2_2k.astype('float32'))
+    wavfile.write('output/Bandpass_400_800_2kHz.wav', 2000, filtered_audio3_2k.astype('float32'))
 
     wavfile.write('output/Echo_one.wav', freq_sample, echo1.astype('float32'))
     wavfile.write('output/Echo_multiple.wav', freq_sample, echo2.astype('float32'))
