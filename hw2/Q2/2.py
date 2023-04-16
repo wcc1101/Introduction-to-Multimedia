@@ -2,7 +2,6 @@ import scipy.io.wavfile as wavfile
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-import soundfile as sf
 import warnings
 warnings.filterwarnings('ignore')
 
