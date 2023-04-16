@@ -33,17 +33,6 @@ def saveShape(signal, fileName):
     plt.savefig(os.path.join(outDir, fileName))
     plt.clf()
 
-def blackman(N):
-    # w(n)=0.42+0.5cos(2pin/n-1)+0.08cos(4pin/n-1)
-    if N < 1:
-        return np.array([], dtype=np.result_type(N, 0.0))
-    elif N == 1:
-        return np.ones(1, dtype=np.result_type(N, 0.0))
-    
-    n = np.arange(1 - N, N, 2)
-
-    return 0.42 + 0.5*np.cos(2.0*np.pi*n/(N-1)) + 0.08*np.cos(4.0*np.pi*n/(N-1))
-
 def constructFilter(freq_sample, windowSize, mode, *freq_cut):
     if mode == 'band-pass':
         (freq_cut1, freq_cut2) = freq_cut
@@ -73,7 +62,8 @@ def constructFilter(freq_sample, windowSize, mode, *freq_cut):
     else:
         fltr[middle] = 2 * (freq_cut2 - freq_cut1)
 
-    fltr *= blackman(windowSize)
+    for i in range(windowSize):
+        fltr[i] *= (0.42 - 0.5 * np.cos((2 * np.pi * i) / (windowSize - 1)) + 0.08 * np.cos((4 * np.pi * i) / (windowSize - 1)))
 
     return fltr
 
