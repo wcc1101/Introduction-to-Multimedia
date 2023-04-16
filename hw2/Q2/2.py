@@ -125,7 +125,7 @@ if __name__ == '__main__':
     
     # build filter
     filter1 = constructFilter(freq_sample, 10001, 'low-pass', 400)
-    filter2 = constructFilter(freq_sample, 10001, 'high-pass', 800)
+    filter2 = constructFilter(freq_sample, 10001, 'band-pass', 800, 1500)
     filter3 = constructFilter(freq_sample, 10001, 'band-pass', 400, 800)
 
     # convolution
@@ -145,25 +145,25 @@ if __name__ == '__main__':
     # save results
     saveSpectrum(audio, freq_sample, 'input.png')
 
-    saveSpectrum(filter1, freq_sample, 'LowPass_spectrum.png')
-    saveSpectrum(filter2, freq_sample, 'HighPass_spectrum.png')
-    saveSpectrum(filter3, freq_sample, 'BandPass_spectrum.png')
+    saveSpectrum(filter1, freq_sample, 'Lowpass_spectrum.png')
+    saveSpectrum(filter2, freq_sample, 'Bandpass1_spectrum.png')
+    saveSpectrum(filter3, freq_sample, 'Bandpass2_spectrum.png')
 
-    saveShape(filter1, 'LowPass_shape.png')
-    saveShape(filter2, 'HighPass_shape.png')
-    saveShape(filter3, 'BandPass_shape.png')
+    saveShape(filter1, 'Lowpass_shape.png')
+    saveShape(filter2, 'Bandpass1_shape.png')
+    saveShape(filter3, 'Bandpass2_shape.png')
 
-    saveSpectrum(filtered_audio1, freq_sample, 'output_by_LowPass.png')
-    saveSpectrum(filtered_audio2, freq_sample, 'output_by_HighPass.png')
-    saveSpectrum(filtered_audio3, freq_sample, 'output_by_BandPass.png')
+    saveSpectrum(filtered_audio1, freq_sample, 'output_by_Lowpass.png')
+    saveSpectrum(filtered_audio2, freq_sample, 'output_by_Bandpass1.png')
+    saveSpectrum(filtered_audio3, freq_sample, 'output_by_Bandpass2.png')
 
-    sf.write('output/LowPass_fc400_ws10001.wav', filtered_audio1, freq_sample)
-    sf.write('output/HighPass_fc800_ws10001.wav', filtered_audio2, freq_sample)
-    sf.write('output/BandPass_fc400-800_ws10001.wav', filtered_audio3, freq_sample)
+    wavfile.write('output/Lowpass_400.wav', freq_sample, filtered_audio1.astype('float32'))
+    wavfile.write('output/Bandpass1_800_1500.wav', freq_sample, filtered_audio2.astype('float32'))
+    wavfile.write('output/Bandpass2_400_800.wav', freq_sample, filtered_audio3.astype('float32'))
 
-    sf.write('output/LowPass_fc400_ws10001_2kHZ.wav', filtered_audio1_2k, 2000)
-    sf.write('output/HighPass_fc400_ws10001_2kHZ.wav', filtered_audio2_2k, 2000)
-    sf.write('output/BandPass_fc400-800_ws10001_2kHZ.wav', filtered_audio3_2k, 2000)
+    wavfile.write('output/Lowpass_400_2kHz.wav', 2000, filtered_audio1_2k.astype('float32'))
+    wavfile.write('output/Bandpass1_800_1500_2kHz.wav', 2000, filtered_audio2_2k.astype('float32'))
+    wavfile.write('output/Bandpass2_400_800_2kHz.wav', 2000, filtered_audio3_2k.astype('float32'))
 
-    sf.write('output/Echo_one.wav', echo1, freq_sample)
-    sf.write('output/Echo_multiple.wav', echo2, freq_sample)
+    wavfile.write('output/Echo_one.wav', freq_sample, echo1.astype('float32'))
+    wavfile.write('output/Echo_multiple.wav', freq_sample, echo2.astype('float32'))
