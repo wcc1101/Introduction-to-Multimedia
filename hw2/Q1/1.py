@@ -107,7 +107,7 @@ def coeffRound(image, n):
     
     return image_rounded
 
-def uniformQuantize(image, m, t):
+def uniformQuantize(image, m, n, t):
     # define height and width for the image
     h, w = image.shape[:2]
 
@@ -152,11 +152,17 @@ def uniformQuantize(image, m, t):
     maxValue = np.amax(image_quantized)
     minValue = np.amin(image_quantized)
     quant_step = (maxValue - minValue) / (2 ** m - 1)
-    image_quantized = np.round((image_quantized - minValue) / quant_step)
+
+    # only left-up n*n
+    for iB in range(0, h, 8):
+        for jB in range(0, w, 8):
+            for i in range(n):
+                for j in range(n):
+                    image_quantized[iB + i, jB + j] = np.round((image_quantized[iB + i, jB + j] - minValue) / quant_step)
     
     return image_quantized, quant_step, minValue
 
-def unQuantize(image, quant_step, t, minValue):
+def unQuantize(image, n, quant_step, t, minValue):
     # define height and width for the image
     h, w = image.shape[:2]
 
@@ -190,7 +196,11 @@ def unQuantize(image, quant_step, t, minValue):
                                   [99, 99, 99, 99, 99, 99, 99, 99]])
 
     # unquantize "save with m bits"
-    image = image * quant_step + minValue
+    for iB in range(0, h, 8):
+        for jB in range(0, w, 8):
+            for i in range(n):
+                for j in range(n):
+                    image[iB + i, jB + j] = image[iB + i, jB + j] * quant_step + minValue
 
     # unquantize "quantize table"
     # initialize unquantized image
@@ -211,11 +221,11 @@ def DCTCompression(image, n, m, t):
     image_dct_rounded = coeffRound(image_dct, n)
 
     # apply uniform quantization with suitable quantization table and save each coefficient with m bits
-    image_dct_rounded_quantized, quant_step, minValue = uniformQuantize(image_dct_rounded, m, t)
+    image_dct_rounded_quantized, quant_step, minValue = uniformQuantize(image_dct_rounded, m, n, t)
 
     ###############################################
     # unquantize
-    image_dct = unQuantize(image_dct_rounded_quantized, quant_step, t, minValue)
+    image_dct = unQuantize(image_dct_rounded_quantized, n, quant_step, t, minValue)
 
     # inverse-DCT
     image = DCT2d(image_dct, inverse=True)
@@ -272,6 +282,7 @@ if __name__ == '__main__':
     barImageRGB = barImageBGR[:,:,::-1]
 
     d = {'cat': catImageRGB, 'bar': barImageRGB}
+
     ### A part ###
     for file in d.keys():
         for n in [2, 4]:

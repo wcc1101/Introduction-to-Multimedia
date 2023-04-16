@@ -87,10 +87,10 @@ def convolution(audio, filter):
 
 def subSample(signal, fs, newfs=2000):
     subRatio = fs // newfs
-
     newSignal = np.zeros(len(signal) // subRatio)
     for i in range(len(newSignal)):
         newSignal[i] = np.mean(signal[i*subRatio:(i+1)*subRatio])
+
     return newSignal
 
 def echo(signal, mode='one'):
