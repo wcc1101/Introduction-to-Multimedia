@@ -112,7 +112,16 @@ def uniformQuantize(image, m, t):
     h, w = image.shape[:2]
 
     # define quantize table
-    if t == 'L':
+    if t == 'R':
+        quantizeTable = np.array([[8, 6, 6, 7, 6, 5, 8, 7],
+                                  [7, 7, 9, 9, 8, 10 ,12, 20],
+                                  [13, 12, 11, 11, 12, 25, 18, 19],
+                                  [15, 20, 29, 26, 31, 30, 29, 26], 
+                                  [28, 28, 32, 36, 46, 39, 32, 34],
+                                  [44, 35, 28, 28, 40, 55, 41, 44],
+                                  [48, 49, 52, 52, 52, 31, 39, 57], 
+                                  [61, 56, 50, 60, 46, 51, 52, 50]])
+    elif t == 'L':
         quantizeTable = np.array([[16, 11, 10, 16, 24, 40, 51, 61],
                                   [12, 12, 14, 19, 26, 58, 60, 55],
                                   [14, 13, 16, 24, 40, 57, 69, 56],
@@ -152,7 +161,16 @@ def unQuantize(image, quant_step, t, minValue):
     h, w = image.shape[:2]
 
     # define quantize table
-    if t == 'L':
+    if t == 'R':
+        quantizeTable = np.array([[8, 6, 6, 7, 6, 5, 8, 7],
+                                  [7, 7, 9, 9, 8, 10 ,12, 20],
+                                  [13, 12, 11, 11, 12, 25, 18, 19],
+                                  [15, 20, 29, 26, 31, 30, 29, 26], 
+                                  [28, 28, 32, 36, 46, 39, 32, 34],
+                                  [44, 35, 28, 28, 40, 55, 41, 44],
+                                  [48, 49, 52, 52, 52, 31, 39, 57], 
+                                  [61, 56, 50, 60, 46, 51, 52, 50]])
+    elif t == 'L':
         quantizeTable = np.array([[16, 11, 10, 16, 24, 40, 51, 61],
                                   [12, 12, 14, 19, 26, 58, 60, 55],
                                   [14, 13, 16, 24, 40, 57, 69, 56],
@@ -209,12 +227,10 @@ def A(image, n, m):
     image_ = image.astype('float64')
     image_ = image_ - 128
 
-    # Y channel
-    image_[:,:,0] = DCTCompression(image_[:,:,0], n, m, t='L')
-    # Cb channel
-    image_[:,:,1] = DCTCompression(image_[:,:,1], n, m, t='C')
-    # # Cr channel
-    image_[:,:,2] = DCTCompression(image_[:,:,2], n, m, t='C')
+    # RGB channel
+    image_[:,:,0] = DCTCompression(image_[:,:,0], n, m, t='R')
+    image_[:,:,1] = DCTCompression(image_[:,:,1], n, m, t='R')
+    image_[:,:,2] = DCTCompression(image_[:,:,2], n, m, t='R')
 
     # shift pixel values back
     image_ = image_ + 128
@@ -257,14 +273,14 @@ if __name__ == '__main__':
 
     d = {'cat': catImageRGB, 'bar': barImageRGB}
     ### A part ###
-    for file in ['cat', 'bar']:
+    for file in d.keys():
         for n in [2, 4]:
             for m in [4, 8]:
                 image = A(d[file], n, m)
                 saveImage(image[:,:,::-1], f'{file}_n{n}m{m}_a.jpg')
 
     ### B part ###
-    for file in ['cat', 'bar']:
+    for file in d.keys():
         for n in [2, 4]:
             for m in [4, 8]:
                 image = B(d[file], n, m)
