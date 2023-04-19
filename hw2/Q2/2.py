@@ -72,7 +72,7 @@ def showF(audio, freq_sample):
     freqs = np.fft.fftfreq(len(audio), 1.0 / freq_sample)
     plt.clf()
     plt.figure(figsize=(15, 5))
-    plt.plot(freqs, spectrum)
+    plt.plot(freqs[:20000], spectrum[:20000])
     plt.show()
 
 def convolution(audio, filter):

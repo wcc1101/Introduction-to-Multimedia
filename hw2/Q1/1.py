@@ -273,6 +273,12 @@ def B(image, n, m):
 
     return imageRGB
 
+def PSNR(image1, image2):
+    mse = np.mean((image1 - image2) ** 2)
+    psnr = 10 * np.log10((255 ** 2) / mse)
+
+    return psnr
+
 if __name__ == '__main__':
     # get input
     catImageBGR = cv2.imread('cat.jpg')
@@ -289,6 +295,7 @@ if __name__ == '__main__':
             for m in [4, 8]:
                 image = A(d[file], n, m)
                 saveImage(image[:,:,::-1], f'{file}_n{n}m{m}_a.jpg')
+                print('{}_N{}_M{}_A -- compression ratio: {:02d}, PSNR: {:2.4f}'.format(file, n, m, int(1 / ((n / 8) ** 2 * (m / 8))), PSNR(image, d[file])))
 
     ### B part ###
     for file in d.keys():
@@ -296,3 +303,4 @@ if __name__ == '__main__':
             for m in [4, 8]:
                 image = B(d[file], n, m)
                 saveImage(image[:,:,::-1], f'{file}_n{n}m{m}_b.jpg')
+                print('{}_N{}_M{}_B -- compression ratio: {:02d}, PSNR: {:2.4f}'.format(file, n, m, int(1 / ((n / 8) ** 2 * (m / 8) / 2)), PSNR(image, d[file])))

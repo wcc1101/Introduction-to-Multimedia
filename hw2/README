@@ -1,0 +1,7 @@
+使用package: numpy, cv2, matplotlib, os, scipy, warnings
+
+1. 執行1.py。output到/output，輸出compression ratio及PSNR value。
+> python3 1.py
+
+2. 執行2.py。output到/output。
+> python3 2.py
