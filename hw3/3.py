@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 def saveImage(image, fileName):
-    outDir = 'output'
+    outDir = 'out'
     try:
         os.mkdir(outDir)
     except:
@@ -28,7 +28,7 @@ def macroblockDivide(image, size):
     return mb
 
 def calSAD(a, b):
-    return np.sum(np.abs(a - b))
+    return np.sum(np.abs(a.astype('int32') - b.astype('int32')))
 
 def fullSearch(tar, ref, rowIndex, colIndex, searchRange):
     best = None
@@ -118,6 +118,39 @@ def PSNR(image1, image2):
 
     return psnr
 
+def drawMotion(image, mv, size):
+    # get arrows index
+    arrows = np.zeros_like(mv)
+    for i in range(mv.shape[0]):
+        for j in range(mv.shape[1]):
+            arrows[i,j] = (j*size+size/2+mv[i,j,0], i*size+size/2+mv[i,j,1])
+
+    # draw arrows
+    for i in range(arrows.shape[0]):
+        for j in range(arrows.shape[1]):
+            x1, y1 = j*size+size/2, i*size+size/2
+            x2, y2 = arrows[i,j]
+            angle = np.arctan2(y2-y1, x2-x1)
+            end_x = int(x2 - 3*np.cos(angle))
+            end_y = int(y2 - 3*np.sin(angle))
+            cv2.arrowedLine(image, (int(x1), int(y1)), (end_x, end_y), (255, 0, 255), 1)
+
+    return image
+
+def residual(image, imagePdt):
+    image = image.astype('int32')
+
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            for c in range(3):
+                image[i, j, c] = image[i, j, c] - imagePdt[i, j, c]
+                if image[i, j, c] < 0:
+                    image[i, j, c] = 0
+    
+    image = image.astype('uint8')
+
+    return image
+
 if __name__ == '__main__':
     # get input
     image40 = cv2.imread('img/40.jpg')
@@ -131,6 +164,7 @@ if __name__ == '__main__':
     # part 1
     # d = {'full': fullSearch, '2d': logSearch}
     d = {'2d': logSearch}
+    # d = {'full': fullSearch}
     for blockSize in [8, 16]:
         mbRef = macroblockDivide(image40, blockSize)
         mbTar = macroblockDivide(image42, blockSize)
@@ -138,13 +172,17 @@ if __name__ == '__main__':
             for searchRange in [8, 16]:
                 mv = calMotionVector(mbRef, mbTar, searchRange, d[searchMethod])
                 imagePdt = predict(image40, mv, blockSize)
+                imageMV = drawMotion(image40.copy(), mv, blockSize)
+                imageRes = residual(image40.copy(), imagePdt)
                 saveImage(imagePdt[:,:,::-1], f'{searchMethod}_predicted_r{searchRange}_b{blockSize}.jpg')
+                saveImage(imageMV[:,:,::-1], f'{searchMethod}_motion_vector_r{searchRange}_b{blockSize}.jpg')
+                saveImage(imageRes[:,:,::-1], f'{searchMethod}_residual_r{searchRange}_b{blockSize}.jpg')
                 print('{}_r{}_b{} -- SAD: {}, PSNR: {:2.4f}'.format(searchMethod, searchRange, blockSize, calSAD(image42, imagePdt), PSNR(image42, imagePdt)))
 
     # part 2
     mbRef = macroblockDivide(image40, 8)
     mbTar = macroblockDivide(image51, 8)
-    mv = calMotionVector(mbRef, mbTar, 8, logSearch)
+    mv = calMotionVector(mbRef, mbTar, 8, fullSearch)
     imagePdt = predict(image40, mv, 8)
     saveImage(imagePdt[:,:,::-1], f'40to51.jpg')
     print('40 to 51 -- SAD: {}, PSNR: {:2.4f}'.format(calSAD(image51, imagePdt), PSNR(image51, imagePdt)))
