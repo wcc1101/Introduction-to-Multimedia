@@ -44,17 +44,18 @@ def fullSearch(tar, ref, rowIndex, colIndex, searchRange):
     return np.array(best)
 
 def updateCenter(center, best, rowIndex, colIndex, imgShape):
-    center = (center[0] + best[0], center[1] + best[1])
-    if rowIndex + center[0] < 0:
-        center = (-rowIndex, center[1])
-    elif rowIndex + center[0] >= imgShape[0]:
-        center = (imgShape[0] - 1 - rowIndex, center[1])
-    if colIndex + center[1] < 0:
-        center = (center[0], -colIndex)
-    elif colIndex + center[1] >= imgShape[1]:
-        center = (center[0], imgShape[1] - 1 - colIndex)
+    newCenter = (center[0] + best[0], center[1] + best[1])
 
-    return center
+    if rowIndex + newCenter[0] < 0:
+        newCenter = (-rowIndex, newCenter[1])
+    elif rowIndex + newCenter[0] >= imgShape[0]:
+        newCenter = (imgShape[0] - 1 - rowIndex, newCenter[1])
+    if colIndex + newCenter[1] < 0:
+        newCenter = (newCenter[0], -colIndex)
+    elif colIndex + newCenter[1] >= imgShape[1]:
+        newCenter = (newCenter[0], imgShape[1] - 1 - colIndex)
+
+    return newCenter
 
 def logSearch(tar, ref, rowIndex, colIndex, searchRange):
     best = None
@@ -65,7 +66,7 @@ def logSearch(tar, ref, rowIndex, colIndex, searchRange):
     while step >= 1:
         for i in [-step, 0, step]:
             for j in [-step, 0, step]:
-                if i * j != 0:
+                if i * j != 0 and (i != 0 or j != 0):
                     continue
                 if 0 <= rowIndex + center[0] + i < ref.shape[0] and 0 <= colIndex + center[1] + j < ref.shape[1]:
                     nowSAD = calSAD(ref[rowIndex + center[0] + i, colIndex + center[1] + j], tar[rowIndex, colIndex])
@@ -73,6 +74,7 @@ def logSearch(tar, ref, rowIndex, colIndex, searchRange):
                         minSAD = nowSAD
                         best = (i, j)
         center = updateCenter(center, best, rowIndex, colIndex, ref.shape)
+        best = (0, 0)
         step //= 2
 
     for i in [-1, 0, 1]:
@@ -177,7 +179,7 @@ if __name__ == '__main__':
     # part 2
     mbRef = macroblockDivide(image40, 8)
     mbTar = macroblockDivide(image51, 8)
-    mv = calMotionVector(mbRef, mbTar, 8, logSearch)
+    mv = calMotionVector(mbRef, mbTar, 8, fullSearch)
     imagePdt = predict(image40, mv, 8)
     saveImage(imagePdt[:,:,::-1], f'40to51.jpg')
     print('40 to 51 -- SAD: {}, PSNR: {:2.4f}'.format(calSAD(image51, imagePdt), PSNR(image51, imagePdt)))
