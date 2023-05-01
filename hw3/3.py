@@ -43,6 +43,19 @@ def fullSearch(tar, ref, rowIndex, colIndex, searchRange):
                     best = (i, j)
     return np.array(best)
 
+def updateCenter(center, best, rowIndex, colIndex, imgShape):
+    center = (center[0] + best[0], center[1] + best[1])
+    if rowIndex + center[0] < 0:
+        center = (-rowIndex, center[1])
+    elif rowIndex + center[0] >= imgShape[0]:
+        center = (imgShape[0] - 1 - rowIndex, center[1])
+    if colIndex + center[1] < 0:
+        center = (center[0], -colIndex)
+    elif colIndex + center[1] >= imgShape[1]:
+        center = (center[0], imgShape[1] - 1 - colIndex)
+
+    return center
+
 def logSearch(tar, ref, rowIndex, colIndex, searchRange):
     best = None
     minSAD = np.inf
@@ -59,15 +72,7 @@ def logSearch(tar, ref, rowIndex, colIndex, searchRange):
                     if nowSAD < minSAD:
                         minSAD = nowSAD
                         best = (i, j)
-        center = (center[0] + best[0], center[1] + best[1])
-        if rowIndex + center[0] < 0:
-            center = (-rowIndex, center[1])
-        elif rowIndex + center[0] >= ref.shape[0]:
-            center = (ref.shape[0] - 1 - rowIndex, center[1])
-        if colIndex + center[1] < 0:
-            center = (center[0], -colIndex)
-        elif colIndex + center[1] >= ref.shape[1]:
-            center = (center[0], ref.shape[1] - 1 - colIndex)
+        center = updateCenter(center, best, rowIndex, colIndex, ref.shape)
         step //= 2
 
     for i in [-1, 0, 1]:
@@ -77,15 +82,7 @@ def logSearch(tar, ref, rowIndex, colIndex, searchRange):
                 if nowSAD < minSAD:
                     minSAD = nowSAD
                     best = (i, j)
-    center = (center[0] + best[0], center[1] + best[1])
-    if rowIndex + center[0] < 0:
-        center = (-rowIndex, center[1])
-    elif rowIndex + center[0] >= ref.shape[0]:
-        center = (ref.shape[0] - 1 - rowIndex, center[1])
-    if colIndex + center[1] < 0:
-        center = (center[0], -colIndex)
-    elif colIndex + center[1] >= ref.shape[1]:
-        center = (center[0], ref.shape[1] - 1 - colIndex)
+    center = updateCenter(center, best, rowIndex, colIndex, ref.shape)
 
     return np.array(center)
 
@@ -162,13 +159,11 @@ if __name__ == '__main__':
     image51 = image51[:,:,::-1]
 
     # part 1
-    # d = {'full': fullSearch, '2d': logSearch}
-    d = {'2d': logSearch}
-    # d = {'full': fullSearch}
-    for blockSize in [8, 16]:
-        mbRef = macroblockDivide(image40, blockSize)
-        mbTar = macroblockDivide(image42, blockSize)
-        for searchMethod in d.keys():
+    d = {'full': fullSearch, '2d': logSearch}
+    for searchMethod in d.keys():
+        for blockSize in [8, 16]:
+            mbRef = macroblockDivide(image40, blockSize)
+            mbTar = macroblockDivide(image42, blockSize)
             for searchRange in [8, 16]:
                 mv = calMotionVector(mbRef, mbTar, searchRange, d[searchMethod])
                 imagePdt = predict(image40, mv, blockSize)
@@ -177,12 +172,12 @@ if __name__ == '__main__':
                 saveImage(imagePdt[:,:,::-1], f'{searchMethod}_predicted_r{searchRange}_b{blockSize}.jpg')
                 saveImage(imageMV[:,:,::-1], f'{searchMethod}_motion_vector_r{searchRange}_b{blockSize}.jpg')
                 saveImage(imageRes[:,:,::-1], f'{searchMethod}_residual_r{searchRange}_b{blockSize}.jpg')
-                print('{}_r{}_b{} -- SAD: {}, PSNR: {:2.4f}'.format(searchMethod, searchRange, blockSize, calSAD(image42, imagePdt), PSNR(image42, imagePdt)))
+                print('{}_r{:02d}_b{:02d} -- SAD: {}, PSNR: {:2.4f}'.format(searchMethod, searchRange, blockSize, calSAD(image42, imagePdt), PSNR(image42, imagePdt)))
 
     # part 2
     mbRef = macroblockDivide(image40, 8)
     mbTar = macroblockDivide(image51, 8)
-    mv = calMotionVector(mbRef, mbTar, 8, fullSearch)
+    mv = calMotionVector(mbRef, mbTar, 8, logSearch)
     imagePdt = predict(image40, mv, 8)
     saveImage(imagePdt[:,:,::-1], f'40to51.jpg')
     print('40 to 51 -- SAD: {}, PSNR: {:2.4f}'.format(calSAD(image51, imagePdt), PSNR(image51, imagePdt)))
