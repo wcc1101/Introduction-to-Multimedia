@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+from math import floor
 
 def saveImage(image, fileName):
     outDir = 'out'
@@ -35,7 +36,7 @@ def fullSearch(tar, ref, rowIndex, colIndex, searchRange):
     minSAD = np.inf
     for i in range(-searchRange, searchRange + 1):
         for j in range(-searchRange, searchRange + 1):
-            if rowIndex + i >= 0 and rowIndex + i < ref.shape[0] and colIndex + j >= 0 and colIndex + j < ref.shape[1]:
+            if 0 <= rowIndex + i < ref.shape[0] and 0 <= colIndex + j < ref.shape[1]:
                 nowSAD = calSAD(ref[rowIndex + i, colIndex + j], tar[rowIndex, colIndex])
                 if nowSAD < minSAD:
                     minSAD = nowSAD
@@ -43,49 +44,48 @@ def fullSearch(tar, ref, rowIndex, colIndex, searchRange):
     return np.array(best)
 
 def logSearch(tar, ref, rowIndex, colIndex, searchRange):
-    # step 1. initialize
-    center = (0, 0)
     best = None
     minSAD = np.inf
     step = searchRange // 2
-    M = []
-    updateM = True
+    center = (0, 0)
 
     while step >= 1:
-        # step 2. M(n)
-        if updateM:
-            M = [(0, 0), (step, 0), (0, step), (-step, 0), (0, -step)]
-            updateM = False
-
-        # step 3. find minimum
-        for (i, j) in M:
-            if 0 <= rowIndex + center[0] + i < ref.shape[0] and 0 <= colIndex + center[1] + j < ref.shape[1]:
-                nowSAD = calSAD(ref[rowIndex + center[0] + i, colIndex + center[1] + j], tar[rowIndex, colIndex])
-                if nowSAD < minSAD:
-                    minSAD = nowSAD
-                    best = (i, j)
-
-        # step 4. q <- q + i, l <- l + j, M <- M - (-i, -j), go to step 3
-        if best[0] != 0 or best[1] != 0:
-            print(best[0], best[1])
-            center = (center[0] + best[0], center[1] + best[1])
-            M = [(m[0] + best[0], m[1] + best[1]) for m in M]
-            continue
-
-        # step 5. n <- n / 2
+        for i in [-step, 0, step]:
+            for j in [-step, 0, step]:
+                if i * j != 0:
+                    continue
+                if 0 <= rowIndex + center[0] + i < ref.shape[0] and 0 <= colIndex + center[1] + j < ref.shape[1]:
+                    nowSAD = calSAD(ref[rowIndex + center[0] + i, colIndex + center[1] + j], tar[rowIndex, colIndex])
+                    if nowSAD < minSAD:
+                        minSAD = nowSAD
+                        best = (i, j)
+        center = (center[0] + best[0], center[1] + best[1])
+        if rowIndex + center[0] < 0:
+            center = (-rowIndex, center[1])
+        elif rowIndex + center[0] >= ref.shape[0]:
+            center = (ref.shape[0] - 1 - rowIndex, center[1])
+        if colIndex + center[1] < 0:
+            center = (center[0], -colIndex)
+        elif colIndex + center[1] >= ref.shape[1]:
+            center = (center[0], ref.shape[1] - 1 - colIndex)
         step //= 2
-        updateM = True
-        print('---------------- step size: ', step)
 
-    # step 6. find minimum in N(1)
-    for i in [-step, 0, step]:
-        for j in [-step, 0, step]:
+    for i in [-1, 0, 1]:
+        for j in [-1, 0, 1]:
             if 0 <= rowIndex + center[0] + i < ref.shape[0] and 0 <= colIndex + center[1] + j < ref.shape[1]:
                 nowSAD = calSAD(ref[rowIndex + center[0] + i, colIndex + center[1] + j], tar[rowIndex, colIndex])
                 if nowSAD < minSAD:
                     minSAD = nowSAD
                     best = (i, j)
     center = (center[0] + best[0], center[1] + best[1])
+    if rowIndex + center[0] < 0:
+        center = (-rowIndex, center[1])
+    elif rowIndex + center[0] >= ref.shape[0]:
+        center = (ref.shape[0] - 1 - rowIndex, center[1])
+    if colIndex + center[1] < 0:
+        center = (center[0], -colIndex)
+    elif colIndex + center[1] >= ref.shape[1]:
+        center = (center[0], ref.shape[1] - 1 - colIndex)
 
     return np.array(center)
 
