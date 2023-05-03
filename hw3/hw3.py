@@ -66,7 +66,7 @@ def logSearch(tar, ref, rowIndex, colIndex, searchRange):
     while step >= 1:
         for i in [-step, 0, step]:
             for j in [-step, 0, step]:
-                if i * j != 0 and (i != 0 or j != 0):
+                if i * j != 0:
                     continue
                 if 0 <= rowIndex + center[0] + i < ref.shape[0] and 0 <= colIndex + center[1] + j < ref.shape[1]:
                     nowSAD = calSAD(ref[rowIndex + center[0] + i, colIndex + center[1] + j], tar[rowIndex, colIndex])
