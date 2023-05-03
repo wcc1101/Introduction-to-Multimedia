@@ -138,16 +138,9 @@ def drawMotion(image, mv, size):
 
 def residual(image, imagePdt):
     image = image.astype('int32')
-
-    for i in range(image.shape[0]):
-        for j in range(image.shape[1]):
-            for c in range(3):
-                image[i, j, c] = image[i, j, c] - imagePdt[i, j, c]
-                if image[i, j, c] < 0:
-                    image[i, j, c] = 0
-    
+    image = image - imagePdt
+    image = np.clip(image, 0, 255)
     image = image.astype('uint8')
-
     return image
 
 if __name__ == '__main__':
